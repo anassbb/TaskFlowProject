@@ -1,0 +1,27 @@
+{
+  // .NET : la solution à charger par C# Dev Kit
+  "dotnet.defaultSolution": "TaskFlow.slnx",
+
+  // Formatage automatique à l'enregistrement
+  "editor.formatOnSave": true,
+  "[csharp]": { "editor.defaultFormatter": "ms-dotnettools.csharp" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[scss]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json][jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // ESLint et TypeScript pointent sur le projet Angular
+  "eslint.workingDirectories": ["web/taskflow-ui"],
+  "typescript.tsdk": "web/taskflow-ui/node_modules/typescript/lib",
+
+  // Masque les dossiers générés dans l'explorateur
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/.angular": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true
+  }
+}

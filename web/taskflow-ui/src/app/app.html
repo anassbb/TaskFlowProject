@@ -1,0 +1,14 @@
+<header class="topbar">
+  <h1>TaskFlow</h1>
+  <div class="api">
+    API
+    <app-status-badge [status]="apiStatus()" />
+    @if (info.hasValue()) {
+      <small>{{ info.value().name }} · v{{ info.value().version }} · {{ info.value().environment }}</small>
+    }
+  </div>
+</header>
+
+<main class="content">
+  <router-outlet />
+</main>

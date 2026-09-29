@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TaskFlow Mémo Technique</title>
+<style>
+:root{
+  --bg:#f7f7f5; --surface:#ffffff; --text:#1d1d1f; --muted:#5c5c66; --border:#e2e2e6;
+  --accent:#4f46e5; --accent-soft:#eef0ff; --warn:#b45309; --warn-soft:#fff5e6; --ok:#047857; --ok-soft:#e9f8f1;
+  --code-bg:#f1f1f4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121216; --surface:#1b1b21; --text:#ececf1; --muted:#a0a0ad; --border:#2c2c35;
+    --accent:#8b8cf8; --accent-soft:#23234a; --warn:#f5b454; --warn-soft:#33260f; --ok:#4ade9c; --ok-soft:#10291f;
+    --code-bg:#24242c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121216; --surface:#1b1b21; --text:#ececf1; --muted:#a0a0ad; --border:#2c2c35;
+  --accent:#8b8cf8; --accent-soft:#23234a; --warn:#f5b454; --warn-soft:#33260f; --ok:#4ade9c; --ok-soft:#10291f;
+  --code-bg:#24242c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:32px 16px 80px}
+h1{font-size:2rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 24px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+nav a{font-size:.85rem;text-decoration:none;color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px}
+section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin-bottom:20px}
+h2{font-size:1.3rem;margin:0 0 12px}
+h3{font-size:1.02rem;margin:18px 0 6px}
+p,li{color:var(--text)}
+ul{padding-left:20px;margin:6px 0}
+li{margin:3px 0}
+code{background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:.88em;font-family:ui-monospace,Consolas,monospace}
+pre{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-size:.85rem;line-height:1.45;margin:10px 0}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;font-size:.92rem;margin:8px 0}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.tbl{overflow-x:auto}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0}
+.warn{background:var(--warn-soft);border-left:4px solid var(--warn)}
+.ok{background:var(--ok-soft);border-left:4px solid var(--ok)}
+.key{background:var(--accent-soft);border-left:4px solid var(--accent)}
+.tag{display:inline-block;font-size:.75rem;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>TaskFlow : mémo technique</h1>
+<p class="sub">Projet de formation .NET 10 + Angular 21, avec une architecture moderne et une CI/CD entièrement gratuite. Version 1, 23/09/2026.</p>
+
+<nav>
+  <a href="#projet">1. Le projet</a><a href="#install">2. Prérequis</a><a href="#stack">3. Stack gratuite</a>
+  <a href="#archi">4. Architecture</a><a href="#back">5. Backend à retenir</a><a href="#front">6. Angular à retenir</a>
+  <a href="#tests">7. Tests</a><a href="#cicd">8. CI/CD</a><a href="#roadmap">9. Roadmap</a><a href="#pieges">10. Pièges</a>
+</nav>
+
+<section id="projet">
+<h2>1. Le projet : TaskFlow</h2>
+<p>Un outil de gestion de projets multi-équipes, dans l'esprit de Jira ou Trello. Le domaine est assez riche pour pratiquer le DDD, le temps réel, les événements et la sécurité fine.</p>
+<ul>
+  <li><b>Workspaces</b> (tenant) → <b>Projets</b> → <b>Tâches</b> sur un board Kanban (glisser-déposer)</li>
+  <li>Membres et rôles par workspace : Owner, Admin, Member, Viewer (autorisation par ressource)</li>
+  <li>Commentaires, mentions @, pièces jointes, historique d'audit</li>
+  <li>Mises à jour temps réel du board avec <b>SignalR</b></li>
+  <li>Notifications asynchrones (e-mail simulé) via une file de messages</li>
+  <li>Tableau de bord : statistiques par projet, tâches en retard</li>
+</ul>
+</section>
+
+<section id="install">
+<h2>2. Prérequis à installer</h2>
+<div class="box warn">Aujourd'hui, ta machine a <b>.NET 8</b> au maximum, <b>Node 14</b> et pas de moteur de conteneurs. Il faut mettre à jour avant de commencer.</div>
+<div class="tbl"><table>
+<tr><th>Outil</th><th>Version</th><th>Remarque</th></tr>
+<tr><td>.NET SDK</td><td>10.x (LTS)</td><td>Garde le 8 installé à côté, les deux cohabitent.</td></tr>
+<tr><td>Node.js</td><td>22 LTS</td><td>Installe-le via <code>nvm-windows</code> pour changer de version facilement.</td></tr>
+<tr><td>Angular CLI</td><td>21+</td><td><code>npm i -g @angular/cli</code></td></tr>
+<tr><td>Conteneurs</td><td>Podman Desktop ou Docker Desktop</td><td>Docker Desktop est <b>payant en entreprise</b> (plus de 250 salariés). Podman Desktop est gratuit et compatible avec Aspire et Testcontainers.</td></tr>
+<tr><td>Aspire CLI</td><td>13+</td><td>Orchestration locale de l'API, du front, de Postgres, Redis et RabbitMQ.</td></tr>
+<tr><td>IDE</td><td>VS 2026 Community / Rider (gratuit en usage non commercial) / VS Code</td><td>Avec les extensions C# Dev Kit et Angular Language Service.</td></tr>
+</table></div>
+</section>
+
+<section id="stack">
+<h2>3. Stack 100 % gratuite</h2>
+<div class="box warn"><b>À retenir :</b> plusieurs bibliothèques .NET très connues sont devenues <b>payantes</b> en 2025 : MediatR, AutoMapper, MassTransit v9 et FluentAssertions v8. Dans un vrai projet, vérifie toujours la licence avant d'ajouter une dépendance.</div>
+<div class="tbl"><table>
+<tr><th>Besoin</th><th>Choix</th><th>Alternative payante évitée</th></tr>
+<tr><td>Médiateur / CQRS</td><td><b>Wolverine</b> (qui fait aussi la messagerie) ou <b>Mediator</b> (généré à la compilation)</td><td>MediatR</td></tr>
+<tr><td>Mapping</td><td>Mapping manuel ou <b>Mapperly</b> (généré à la compilation)</td><td>AutoMapper</td></tr>
+<tr><td>Messagerie</td><td>Wolverine + RabbitMQ</td><td>MassTransit v9</td></tr>
+<tr><td>Assertions de test</td><td><b>Shouldly</b> ou AwesomeAssertions</td><td>FluentAssertions v8</td></tr>
+<tr><td>Validation</td><td>FluentValidation</td><td>—</td></tr>
+<tr><td>Base de données</td><td>PostgreSQL + EF Core 10</td><td>—</td></tr>
+<tr><td>Cache</td><td>HybridCache (.NET 9+) + Redis</td><td>—</td></tr>
+<tr><td>Authentification</td><td>Keycloak en local (via Aspire)</td><td>—</td></tr>
+<tr><td>Documentation d'API</td><td><code>Microsoft.AspNetCore.OpenApi</code> + interface <b>Scalar</b></td><td>Swashbuckle, plus inclus dans les templates</td></tr>
+<tr><td>Logs, traces, métriques</td><td>OpenTelemetry + dashboard Aspire (Serilog en option)</td><td>—</td></tr>
+<tr><td>CI/CD</td><td>GitHub Actions (minutes illimitées si le dépôt est public)</td><td>—</td></tr>
+<tr><td>Registre d'images</td><td>GitHub Container Registry (GHCR)</td><td>—</td></tr>
+<tr><td>Qualité et sécurité</td><td>SonarCloud (gratuit en public), CodeQL, Dependabot</td><td>—</td></tr>
+<tr><td>Hébergement</td><td>API sur Render (Docker, offre gratuite), base Neon Postgres, Redis Upstash, RabbitMQ CloudAMQP, front sur Cloudflare Pages</td><td>—</td></tr>
+</table></div>
+</section>
+
+<section id="archi">
+<h2>4. Architecture</h2>
+<h3>Clean Architecture + Vertical Slices (modular monolith)</h3>
+<p>On combine deux idées. La <b>Clean Architecture</b> impose que les dépendances pointent vers le domaine. Les <b>Vertical Slices</b> rangent le code par <i>fonctionnalité</i> plutôt que par couche technique. Chaque module (Projects, Tasks, Identity, Notifications) est autonome et pourra devenir un microservice plus tard.</p>
+<pre><code>TaskFlow/
+├─ src/
+│  ├─ TaskFlow.AppHost/            # Aspire : orchestration locale
+│  ├─ TaskFlow.ServiceDefaults/    # OpenTelemetry, health checks, résilience
+│  ├─ TaskFlow.Api/                # Hôte : Program.cs, middlewares, endpoints
+│  ├─ Modules/
+│  │  ├─ Tasks/
+│  │  │  ├─ TaskFlow.Tasks.Domain/          # Entités, Value Objects, événements, règles
+│  │  │  ├─ TaskFlow.Tasks.Application/     # Features/CreateTask/{Command, Handler, Validator, Endpoint}
+│  │  │  ├─ TaskFlow.Tasks.Infrastructure/  # DbContext, repositories, outbox
+│  │  │  └─ TaskFlow.Tasks.Contracts/       # Événements publics (communication entre modules)
+│  │  ├─ Projects/ …
+│  │  └─ Notifications/ …
+│  └─ TaskFlow.SharedKernel/       # Result, Entity, AggregateRoot, DomainEvent
+├─ web/taskflow-ui/                # Angular 21
+├─ tests/ (Unit, Integration, Architecture, E2E)
+├─ .github/workflows/
+├─ Directory.Build.props           # Options communes : Nullable, TreatWarningsAsErrors, analyseurs
+└─ Directory.Packages.props        # Versions des paquets NuGet centralisées</code></pre>
+<div class="box key"><b>Règles d'or</b>
+<ul>
+  <li>Le <b>Domain</b> ne référence rien, ni EF Core ni ASP.NET.</li>
+  <li>Un module ne lit <b>jamais</b> directement la base d'un autre module. Il passe par ses <code>Contracts</code> ou par des événements.</li>
+  <li>Chaque module a son propre <b>schéma</b> Postgres et son propre DbContext.</li>
+  <li>Ces règles sont vérifiées automatiquement par des <b>tests d'architecture</b>.</li>
+</ul></div>
+</section>
+
+<section id="back">
+<h2>5. Backend : les notions à retenir</h2>
+
+<h3>DDD tactique</h3>
+<ul>
+  <li><b>Aggregate Root</b> : seul point d'entrée pour modifier un ensemble cohérent (ex. <code>Project</code> contient ses <code>Columns</code>). On ne modifie qu'un agrégat par transaction.</li>
+  <li><b>Value Object</b> : immuable, comparé par sa valeur (<code>TaskTitle</code>, <code>Email</code>, <code>DueDate</code>). On l'implémente avec un <code>record</code> et une factory qui valide.</li>
+  <li><b>Invariants</b> : les règles métier vivent <i>dans</i> l'entité (setters privés, méthodes comme <code>task.MoveTo(column)</code>).</li>
+  <li><b>Domain Events</b> : <code>TaskAssignedEvent</code> est levé par l'entité puis dispatché au <code>SaveChanges</code>.</li>
+  <li><b>Identifiants fortement typés</b> : <code>readonly record struct TaskId(Guid Value)</code>. On utilise <code>Guid.CreateVersion7()</code>, qui donne des identifiants triables et plus efficaces en index.</li>
+</ul>
+
+<h3>CQRS et pipeline</h3>
+<ul>
+  <li>Les <b>Commands</b> modifient l'état et retournent un <code>Result</code>. Les <b>Queries</b> lisent (<code>AsNoTracking</code>, projection directe en DTO, voire Dapper).</li>
+  <li>Des <b>behaviors</b> (middlewares de pipeline) gèrent les aspects transverses : validation, logging, transaction, cache.</li>
+  <li><b>Result pattern</b> : une erreur métier attendue renvoie un <code>Result.Failure(Error)</code> et ne lève pas d'exception. Les exceptions restent réservées aux cas vraiment exceptionnels.</li>
+</ul>
+
+<h3>API (Minimal APIs)</h3>
+<ul>
+  <li>Utilise <code>MapGroup()</code>, <code>TypedResults</code>, et un fichier d'endpoint par feature (interface <code>IEndpoint</code> scannée au démarrage).</li>
+  <li>Les erreurs sortent au format <b>ProblemDetails (RFC 9457)</b> via <code>AddProblemDetails()</code> et <code>IExceptionHandler</code>.</li>
+  <li>Versionne l'API avec <code>Asp.Versioning</code> et génère le document OpenAPI nativement.</li>
+  <li>Ajoute le <b>rate limiting</b> intégré, l'output caching, et un <b>ETag / If-Match</b> pour la concurrence optimiste.</li>
+  <li>Les requêtes de modification portent une clé d'<b>idempotence</b> (en-tête <code>Idempotency-Key</code>).</li>
+</ul>
+
+<h3>EF Core 10</h3>
+<ul>
+  <li>Configure les entités avec <code>IEntityTypeConfiguration&lt;T&gt;</code> et des value converters pour les identifiants typés. Mappe les Value Objects en <b>complex types</b> ou owned types.</li>
+  <li>Gère la concurrence avec la colonne <code>xmin</code> de Postgres comme jeton de concurrence.</li>
+  <li>Utilise des <b>interceptors</b> pour l'audit (CreatedAt/By) et le soft delete (filtre global).</li>
+  <li>Applique les migrations en <b>CI/CD via un bundle</b> (<code>dotnet ef migrations bundle</code>), jamais au démarrage en production.</li>
+  <li>Anticipe les problèmes de performance : requêtes N+1, <code>AsSplitQuery</code>, pagination par curseur (keyset) plutôt que <code>Skip/Take</code> sur les grosses tables.</li>
+</ul>
+
+<h3>Messagerie fiable</h3>
+<ul>
+  <li><b>Outbox pattern</b> : l'événement est écrit dans la même transaction que les données, puis publié par un processus en arrière-plan. Aucun message n'est perdu.</li>
+  <li><b>Inbox et idempotence</b> côté consommateur, car un message peut arriver deux fois (livraison <i>at-least-once</i>).</li>
+  <li>Retries avec backoff exponentiel et dead-letter queue.</li>
+</ul>
+
+<h3>Transverse</h3>
+<ul>
+  <li><b>Options pattern</b> avec <code>ValidateOnStart()</code>. Les secrets passent par <code>dotnet user-secrets</code> en local, jamais dans Git.</li>
+  <li><b>Résilience</b> : <code>Microsoft.Extensions.Http.Resilience</code> (Polly v8), déjà inclus dans ServiceDefaults.</li>
+  <li><b>Health checks</b> <code>/health</code> et <code>/alive</code>, et traces distribuées OpenTelemetry.</li>
+  <li>Sécurité : JWT Bearer émis par Keycloak, <b>policies</b> et <code>IAuthorizationHandler</code> pour les autorisations par ressource (« est-ce que tu es membre de ce workspace ? »).</li>
+  <li><b>SignalR</b> : un groupe par projet, et les notifications sont poussées depuis les handlers d'événements.</li>
+</ul>
+</section>
+
+<section id="front">
+<h2>6. Angular 21 : les notions à retenir</h2>
+<ul>
+  <li><b>Standalone</b> partout (plus de NgModules), <b>zoneless</b> (par défaut depuis la v21) et <code>ChangeDetectionStrategy.OnPush</code>.</li>
+  <li><b>Signals</b> : <code>signal</code>, <code>computed</code>, <code>effect</code> (avec parcimonie), <code>linkedSignal</code>, <code>input()</code>, <code>output()</code>, <code>model()</code>.</li>
+  <li><b>Chargement de données</b> : <code>httpResource()</code> ou <code>resource()</code> pour des requêtes réactives. RxJS reste utile pour les flux complexes (debounce, WebSocket), avec <code>toSignal</code> et <code>toObservable</code> comme ponts.</li>
+  <li><b>Control flow</b> : <code>@if</code>, <code>@for (track …)</code>, <code>@switch</code>, et <code>@defer</code> pour charger des morceaux de page à la demande.</li>
+  <li><code>inject()</code> plutôt que l'injection par constructeur. Interceptors et guards sous forme de <b>fonctions</b>.</li>
+  <li><b>État global</b> : <b>NgRx SignalStore</b> (<code>withState</code>, <code>withComputed</code>, <code>withMethods</code>).</li>
+  <li><b>Formulaires</b> : Reactive Forms typés, ou <b>Signal Forms</b> (encore expérimentaux, à tester).</li>
+  <li><b>Organisation</b> par feature (<code>features/board</code>, <code>features/projects</code>), avec <code>core/</code> pour les singletons et <code>shared/</code> pour l'UI réutilisable. Routes chargées à la demande (<code>loadComponent</code>, <code>loadChildren</code>).</li>
+  <li><b>Client HTTP généré</b> depuis l'OpenAPI du backend (<code>orval</code> ou <code>openapi-generator</code>) : des types partagés et zéro désynchronisation.</li>
+  <li>Authentification OIDC avec <code>angular-auth-oidc-client</code> (flux Authorization Code + PKCE).</li>
+  <li>UI avec Angular Material et CDK Drag&amp;Drop pour le Kanban, ou Tailwind.</li>
+</ul>
+</section>
+
+<section id="tests">
+<h2>7. Stratégie de tests</h2>
+<div class="tbl"><table>
+<tr><th>Niveau</th><th>Outils</th><th>Ce qu'on teste</th></tr>
+<tr><td>Unitaires domaine</td><td>xUnit v3 + Shouldly</td><td>Les invariants, les Value Objects, les événements levés</td></tr>
+<tr><td>Unitaires handlers</td><td>xUnit + NSubstitute</td><td>La logique applicative</td></tr>
+<tr><td>Intégration</td><td><code>WebApplicationFactory</code> + <b>Testcontainers</b> (vrai Postgres) + Respawn</td><td>Les endpoints de bout en bout, sans mocks de base</td></tr>
+<tr><td>Architecture</td><td>NetArchTest / ArchUnitNET</td><td>Les règles de dépendance entre couches et modules</td></tr>
+<tr><td>Front unitaires</td><td><b>Vitest</b> (par défaut en Angular 21) + Testing Library</td><td>Les composants, les stores, les services</td></tr>
+<tr><td>E2E</td><td><b>Playwright</b></td><td>Les parcours critiques : login, créer une tâche, la déplacer</td></tr>
+<tr><td>Mutation (bonus)</td><td>Stryker.NET</td><td>La qualité réelle des tests</td></tr>
+</table></div>
+<div class="box key">La couverture de code est un indicateur, pas un objectif. Il vaut mieux 70 % de tests pertinents que 95 % de tests qui ne vérifient rien.</div>
+</section>
+
+<section id="cicd">
+<h2>8. CI/CD avec GitHub Actions</h2>
+<pre><code>PR ouverte ─► ci.yml
+  ├─ backend : restore (cache NuGet) → build → tests unitaires et d'architecture
+  │            → tests d'intégration (Testcontainers) → couverture → SonarCloud
+  ├─ frontend : npm ci (cache) → lint → Vitest → build de production
+  ├─ security : CodeQL + scan des dépendances
+  └─ e2e : Playwright contre l'application lancée en conteneurs
+
+merge sur main ─► cd.yml
+  ├─ numéro de version calculé (semantic-release / Conventional Commits)
+  ├─ docker build multi-stage → push GHCR (tags : sha + version)
+  ├─ migrations EF (bundle) → Neon
+  ├─ déploiement API → Render (deploy hook)   | environnement "production"
+  ├─ déploiement front → Cloudflare Pages     | avec approbation manuelle
+  └─ smoke test sur /health + GitHub Release</code></pre>
+<ul>
+  <li><b>Branch protection</b> : pas de merge sans CI verte ni revue.</li>
+  <li><b>Conventional Commits</b> (<code>feat:</code>, <code>fix:</code>) : le changelog et la version sont générés automatiquement.</li>
+  <li><b>Environnements GitHub</b> avec secrets séparés et approbation manuelle pour la production.</li>
+  <li><b>Dependabot</b> ou Renovate pour mettre à jour NuGet, npm et les actions.</li>
+  <li><b>Dockerfile multi-stage</b> : image finale <code>aspnet</code> chiseled (sans shell, utilisateur non-root). On peut aussi utiliser <code>dotnet publish /t:PublishContainer</code> sans Dockerfile.</li>
+  <li>Workflows réutilisables (<code>workflow_call</code>) et cache des dépendances pour accélérer les builds.</li>
+</ul>
+</section>
+
+<section id="roadmap">
+<h2>9. Roadmap (sprints d'environ une semaine)</h2>
+<div class="tbl"><table>
+<tr><th>#</th><th>Objectif</th><th>Notions clés</th></tr>
+<tr><td>0</td><td>Installation, dépôt GitHub, solution vide, AppHost Aspire, <code>Directory.*.props</code>, <code>.editorconfig</code></td><td>Aspire, CPM, analyseurs</td></tr>
+<tr><td>1</td><td>Pipeline CI minimal dès le premier jour (build et tests)</td><td>GitHub Actions, branch protection</td></tr>
+<tr><td>2</td><td>Module Projects : domaine, EF Core, premiers endpoints</td><td>DDD, identifiants typés, Result, ProblemDetails</td></tr>
+<tr><td>3</td><td>Angular : shell, routing, client généré, liste des projets</td><td>Standalone, signals, httpResource</td></tr>
+<tr><td>4</td><td>Module Tasks + board Kanban</td><td>CQRS, pipeline behaviors, CDK DragDrop, SignalStore</td></tr>
+<tr><td>5</td><td>Authentification Keycloak + autorisations par workspace</td><td>OIDC, PKCE, policies, multi-tenant</td></tr>
+<tr><td>6</td><td>Tests d'intégration et d'architecture, Playwright</td><td>Testcontainers, pyramide de tests</td></tr>
+<tr><td>7</td><td>Temps réel et notifications asynchrones</td><td>SignalR, outbox, RabbitMQ, Wolverine</td></tr>
+<tr><td>8</td><td>Performance : cache, pagination par curseur, concurrence</td><td>HybridCache, ETag, xmin</td></tr>
+<tr><td>9</td><td>CD : images, migrations, déploiement gratuit, release</td><td>GHCR, Render, Cloudflare Pages, semantic-release</td></tr>
+<tr><td>10</td><td>Observabilité et durcissement</td><td>OpenTelemetry, rate limiting, headers de sécurité, CodeQL</td></tr>
+</table></div>
+</section>
+
+<section id="pieges">
+<h2>10. Pièges classiques (et questions d'entretien)</h2>
+<ul>
+  <li>Sur-architecturer : n'ajoute pas un repository générique au-dessus d'EF Core, le <code>DbContext</code> est déjà un Unit of Work.</li>
+  <li>Domaine anémique : si toutes tes règles métier sont dans les handlers, ton DDD n'en est pas un.</li>
+  <li>Exposer des entités EF directement dans l'API : utilise toujours des DTO.</li>
+  <li>Publier un événement <i>après</i> le commit sans outbox : un crash entre les deux fait perdre le message.</li>
+  <li>Oublier <code>CancellationToken</code> dans la chaîne async, ou appeler <code>.Result</code> / <code>.Wait()</code> sur une tâche.</li>
+  <li>Utiliser <code>effect()</code> pour dériver un état : il faut <code>computed</code> ou <code>linkedSignal</code>.</li>
+  <li>Oublier <code>track</code> dans <code>@for</code>, ou le faire porter sur l'index au lieu de l'identifiant.</li>
+  <li>Mettre des secrets dans <code>appsettings.json</code> ou dans les logs de la CI.</li>
+  <li>Écrire des tests d'intégration sur SQLite ou InMemory alors que la production tourne sur Postgres : utilise Testcontainers.</li>
+</ul>
+</section>
+</div>
+</body>
+</html>

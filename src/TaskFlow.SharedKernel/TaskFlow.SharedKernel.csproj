@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Briques communes à tous les modules : Entity, AggregateRoot, Result, Error. Aucune dépendance externe. -->
+
+</Project>

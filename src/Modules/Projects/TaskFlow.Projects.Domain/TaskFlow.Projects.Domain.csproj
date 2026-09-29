@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Le domaine ne dépend que du SharedKernel : ni EF Core, ni ASP.NET. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\TaskFlow.SharedKernel\TaskFlow.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

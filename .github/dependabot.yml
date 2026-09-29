@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      aspire:
+        patterns: ["Aspire.*"]
+      opentelemetry:
+        patterns: ["OpenTelemetry.*"]
+      tests:
+        patterns: ["xunit*", "Microsoft.NET.Test.Sdk", "Shouldly", "NetArchTest.*", "coverlet.*"]
+
+  - package-ecosystem: npm
+    directory: /web/taskflow-ui
+    schedule:
+      interval: weekly
+    groups:
+      angular:
+        patterns: ["@angular/*", "@angular-devkit/*", "angular-eslint"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -1,0 +1,12 @@
+<Project>
+  <!-- Importé APRÈS les .targets des paquets NuGet.
+       Pas de .exe pour les projets applicatifs (lancés via "dotnet X.dll", voir Directory.Build.props).
+       Les projets xUnit v3 exigent un .exe : on le garde pour eux, et en local on les lance
+       avec scripts/test.ps1 (qui passe par dotnet.exe, autorisé par la politique du poste). -->
+  <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
+    <UseAppHost>false</UseAppHost>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <UseAppHost>true</UseAppHost>
+  </PropertyGroup>
+</Project>

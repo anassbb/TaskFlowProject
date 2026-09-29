@@ -1,0 +1,42 @@
+{
+  // Ctrl+Maj+P > "Tasks: Run Task" pour lancer ces commandes.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "TaskFlow : lancer (Aspire)",
+      "type": "shell",
+      "command": "dotnet run --project src/TaskFlow.AppHost",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "TaskFlow : build .NET",
+      "type": "shell",
+      "command": "dotnet build TaskFlow.slnx",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "TaskFlow : tests .NET",
+      "type": "shell",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test.ps1",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "TaskFlow : tests Angular",
+      "type": "shell",
+      "command": "npm test -- --watch=false",
+      "options": { "cwd": "${workspaceFolder}/web/taskflow-ui" },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "TaskFlow : lint Angular",
+      "type": "shell",
+      "command": "npm run lint",
+      "options": { "cwd": "${workspaceFolder}/web/taskflow-ui" },
+      "problemMatcher": []
+    }
+  ]
+}

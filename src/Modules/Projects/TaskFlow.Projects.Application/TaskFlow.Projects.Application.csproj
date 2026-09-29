@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Vertical slices : chaque feature (Command/Query + Handler + Validator + Endpoint) vit ici. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TaskFlow.Projects.Domain\TaskFlow.Projects.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

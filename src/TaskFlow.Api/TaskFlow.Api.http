@@ -1,0 +1,8 @@
+@TaskFlow.Api_HostAddress = https://localhost:7209
+
+### Infos de l'API (vérifie que tout répond)
+GET {{TaskFlow.Api_HostAddress}}/api/info
+Accept: application/json
+
+### Health check (Aspire)
+GET {{TaskFlow.Api_HostAddress}}/health

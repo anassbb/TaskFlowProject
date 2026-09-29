@@ -1,0 +1,13 @@
+{
+  // VS Code propose d'installer ces extensions à l'ouverture du projet.
+  "recommendations": [
+    "ms-dotnettools.csdevkit",
+    "microsoft-aspire.aspire-vscode",
+    "angular.ng-template",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-playwright.playwright",
+    "ms-azuretools.vscode-containers",
+    "editorconfig.editorconfig"
+  ]
+}

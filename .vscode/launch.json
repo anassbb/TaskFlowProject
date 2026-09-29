@@ -1,0 +1,12 @@
+{
+  // F5 : lance toute l'application (Postgres + API + front) avec le débogueur attaché.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "TaskFlow (Aspire)",
+      "type": "aspire",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/TaskFlow.AppHost/TaskFlow.AppHost.csproj"
+    }
+  ]
+}

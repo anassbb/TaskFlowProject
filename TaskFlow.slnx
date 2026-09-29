@@ -1,15 +1,22 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/TaskFlow.Api/TaskFlow.Api.csproj" />
-    <Project Path="src/TaskFlow.AppHost/TaskFlow.AppHost.csproj" />
-    <Project Path="src/TaskFlow.ServiceDefaults/TaskFlow.ServiceDefaults.csproj" />
+  <Folder Name="/src/" />
+  <Folder Name="/src/AppHost/">
+    <Project Path="src/AppHost/TaskFlow.AppHost/TaskFlow.AppHost.csproj" />
   </Folder>
-  <Folder Name="/src/Modules/" />
-  <Folder Name="/src/Modules/Projects/">
-    <Project Path="src/Modules/Projects/TaskFlow.Projects.Application/TaskFlow.Projects.Application.csproj" />
-    <Project Path="src/Modules/Projects/TaskFlow.Projects.Domain/TaskFlow.Projects.Domain.csproj" />
-    <Project Path="src/Modules/Projects/TaskFlow.Projects.Infrastructure/TaskFlow.Projects.Infrastructure.csproj" />
-    <Project Path="src/TaskFlow.SharedKernel/TaskFlow.SharedKernel.csproj" />
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/TaskFlow.ServiceDefaults/TaskFlow.ServiceDefaults.csproj" />
+    <Project Path="src/BuildingBlocks/TaskFlow.SharedKernel/TaskFlow.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/src/Gateway/">
+    <Project Path="src/Gateway/TaskFlow.Gateway/TaskFlow.Gateway.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/Projects/">
+    <Project Path="src/Services/Projects/TaskFlow.Projects.Api/TaskFlow.Projects.Api.csproj" />
+    <Project Path="src/Services/Projects/TaskFlow.Projects.Application/TaskFlow.Projects.Application.csproj" />
+    <Project Path="src/Services/Projects/TaskFlow.Projects.Contracts/TaskFlow.Projects.Contracts.csproj" />
+    <Project Path="src/Services/Projects/TaskFlow.Projects.Domain/TaskFlow.Projects.Domain.csproj" />
+    <Project Path="src/Services/Projects/TaskFlow.Projects.Infrastructure/TaskFlow.Projects.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/TaskFlow.ArchitectureTests/TaskFlow.ArchitectureTests.csproj" />

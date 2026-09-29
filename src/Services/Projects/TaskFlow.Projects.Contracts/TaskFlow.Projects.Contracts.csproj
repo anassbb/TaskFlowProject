@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Contrat public du service Projects : ses événements d'intégration (ProjectCreated, MemberAdded...).
+    C'est le SEUL projet de Projects que les autres services ont le droit de référencer.
+    Règles : types simples uniquement (Guid, string, dates), aucune dépendance, et on n'enlève
+    ni ne renomme jamais un champ (on ajoute, ou on crée une V2).
+  -->
+
+</Project>

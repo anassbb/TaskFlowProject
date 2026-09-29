@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TaskFlow Microservices</title>
+<style>
+:root{
+  --bg:#f7f7f5; --surface:#ffffff; --text:#1d1d1f; --muted:#5c5c66; --border:#e2e2e6;
+  --accent:#4f46e5; --accent-soft:#eef0ff; --warn:#b45309; --warn-soft:#fff5e6; --ok:#047857; --ok-soft:#e9f8f1;
+  --code-bg:#f1f1f4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121216; --surface:#1b1b21; --text:#ececf1; --muted:#a0a0ad; --border:#2c2c35;
+    --accent:#8b8cf8; --accent-soft:#23234a; --warn:#f5b454; --warn-soft:#33260f; --ok:#4ade9c; --ok-soft:#10291f;
+    --code-bg:#24242c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121216; --surface:#1b1b21; --text:#ececf1; --muted:#a0a0ad; --border:#2c2c35;
+  --accent:#8b8cf8; --accent-soft:#23234a; --warn:#f5b454; --warn-soft:#33260f; --ok:#4ade9c; --ok-soft:#10291f;
+  --code-bg:#24242c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:32px 16px 80px}
+h1{font-size:2rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 24px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+nav a{font-size:.85rem;text-decoration:none;color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px}
+section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin-bottom:20px}
+h2{font-size:1.3rem;margin:0 0 12px}
+h3{font-size:1.02rem;margin:18px 0 6px}
+ul{padding-left:20px;margin:6px 0}
+li{margin:3px 0}
+code{background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:.88em;font-family:ui-monospace,Consolas,monospace}
+pre{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-size:.85rem;line-height:1.45;margin:10px 0}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;font-size:.92rem;margin:8px 0}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.tbl{overflow-x:auto}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0}
+.warn{background:var(--warn-soft);border-left:4px solid var(--warn)}
+.ok{background:var(--ok-soft);border-left:4px solid var(--ok)}
+.key{background:var(--accent-soft);border-left:4px solid var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>TaskFlow : passage aux microservices</h1>
+<p class="sub">Version 2 du mémo, du 29/09/2026. Elle complète la v1 (fondations .NET, Angular, DDD, CI) : ici, on découpe TaskFlow en services qui communiquent par RabbitMQ.</p>
+
+<nav>
+  <a href="#pourquoi">1. Pourquoi</a><a href="#archi">2. Architecture</a><a href="#stack">3. Stack</a>
+  <a href="#comm">4. Communication</a><a href="#rabbit">5. RabbitMQ</a><a href="#fiabilite">6. Fiabilité</a>
+  <a href="#donnees">7. Données</a><a href="#obs">8. Observabilité</a><a href="#tests">9. Tests</a>
+  <a href="#code">10. Structure</a><a href="#roadmap">11. Roadmap</a><a href="#pieges">12. Pièges</a>
+</nav>
+
+<section id="pourquoi">
+<h2>1. Pourquoi des microservices, et à quel prix</h2>
+<p>Un microservice est une application déployable seule, qui possède ses propres données et qui correspond à un <b>bounded context</b> du domaine, c'est-à-dire une partie du métier avec son propre vocabulaire.</p>
+<div class="tbl"><table>
+<tr><th>Ce qu'on gagne</th><th>Ce que ça coûte</th></tr>
+<tr><td>Déploiement indépendant de chaque service</td><td>Plus de pièces à faire tourner, surveiller et versionner</td></tr>
+<tr><td>Scalabilité ciblée (Notifications peut tourner en 5 instances)</td><td>Réseau non fiable : latence, pannes partielles</td></tr>
+<tr><td>Isolation des pannes : si Notifications tombe, le board fonctionne encore</td><td><b>Cohérence éventuelle</b> : les données se synchronisent avec un léger décalage</td></tr>
+<tr><td>Équipes autonomes par service</td><td>Débogage distribué : il faut du traçage de bout en bout</td></tr>
+</table></div>
+<div class="box warn"><b>Le piège n°1, le monolithe distribué.</b> Si les services s'appellent tous en HTTP synchrone en chaîne, ou partagent une base, on cumule les inconvénients des deux mondes. La règle : <b>chaque service doit pouvoir répondre même si les autres sont en panne</b>, au moins en mode dégradé.</div>
+</section>
+
+<section id="archi">
+<h2>2. Architecture cible</h2>
+<pre><code>                      ┌────────────────────┐
+  Angular 22  ──────► │ API Gateway (YARP) │  point d'entrée unique, auth, rate limiting
+                      └─────────┬──────────┘
+          ┌─────────────────────┼────────────────────┐
+          ▼                     ▼                    ▼
+   ┌──────────────┐     ┌──────────────┐     ┌────────────────────┐
+   │ Projects API │     │  Tasks API   │     │ Notifications      │
+   │  projectsdb  │     │   tasksdb    │     │ Worker + SignalR   │
+   └──────┬───────┘     └──────┬───────┘     └─────────┬──────────┘
+          │  publie            │  publie / écoute      │  écoute
+          └────────────► RabbitMQ 4 ◄──────────────────┘
+                     (événements d'intégration)</code></pre>
+<div class="tbl"><table>
+<tr><th>Service</th><th>Responsabilité</th><th>Publie</th><th>Écoute</th></tr>
+<tr><td><b>Projects</b></td><td>Workspaces, projets, membres, rôles</td><td><code>ProjectCreated</code>, <code>ProjectArchived</code>, <code>MemberAdded</code>, <code>MemberRemoved</code></td><td>—</td></tr>
+<tr><td><b>Tasks</b></td><td>Tâches, colonnes du board, commentaires</td><td><code>TaskAssigned</code>, <code>TaskMoved</code>, <code>CommentAdded</code></td><td><code>ProjectCreated</code> (crée le board), <code>ProjectArchived</code>, <code>MemberRemoved</code> (désassigne)</td></tr>
+<tr><td><b>Notifications</b></td><td>E-mails simulés, notifications temps réel</td><td>—</td><td>Tous les événements utiles aux utilisateurs</td></tr>
+<tr><td><b>Gateway</b></td><td>Routage, auth, CORS, rate limiting</td><td>—</td><td>—</td></tr>
+</table></div>
+</section>
+
+<section id="stack">
+<h2>3. Stack (100 % gratuite)</h2>
+<div class="tbl"><table>
+<tr><th>Besoin</th><th>Choix</th><th>À retenir</th></tr>
+<tr><td>Broker</td><td><b>RabbitMQ 4</b>, quorum queues</td><td>Files répliquées (algorithme Raft) : le type recommandé aujourd'hui, les files « classic mirrored » ont été supprimées dans la v4.</td></tr>
+<tr><td>Messagerie .NET</td><td><b>Wolverine 6</b> (<code>WolverineFx.RabbitMQ</code>, licence MIT)</td><td>Handlers par convention, outbox et inbox transactionnels, retries, sagas, dead-letter. MassTransit v9 est payant.</td></tr>
+<tr><td>Outbox persistante</td><td><code>WolverineFx.EntityFrameworkCore</code> + <code>WolverineFx.Postgresql</code></td><td>L'événement est écrit dans la même transaction que les données métier.</td></tr>
+<tr><td>API Gateway</td><td><b>YARP 2</b> + <code>Microsoft.Extensions.ServiceDiscovery.Yarp</code></td><td>Reverse proxy .NET de Microsoft. Les routes pointent vers <code>https+http://projects-api</code>, résolu par Aspire.</td></tr>
+<tr><td>Orchestration locale</td><td><b>Aspire 13</b> : <code>AddRabbitMQ().WithManagementPlugin()</code></td><td>Un seul <code>dotnet run</code> lance tous les services, avec l'interface d'administration de RabbitMQ.</td></tr>
+<tr><td>Contrat des événements</td><td><b>CloudEvents</b> (enveloppe) + <b>AsyncAPI</b> (documentation)</td><td>AsyncAPI est à RabbitMQ ce qu'OpenAPI est à REST.</td></tr>
+<tr><td>Tests</td><td><b>Testcontainers</b> (Postgres, RabbitMQ)</td><td>Les tests d'intégration tournent contre de vrais conteneurs.</td></tr>
+</table></div>
+<div class="box key"><b>Et Kafka ou NATS ?</b> Kafka est un <i>journal</i> d'événements, qui sert à rejouer l'historique et à traiter de gros volumes. RabbitMQ est un <i>routeur</i> de messages, fait pour la logique métier et les files de travail. Pour TaskFlow, RabbitMQ est le bon outil. Tu pourras comparer avec les <b>RabbitMQ Streams</b>, qui ressemblent à Kafka, en bonus.</div>
+</section>
+
+<section id="comm">
+<h2>4. Synchrone ou asynchrone ?</h2>
+<div class="tbl"><table>
+<tr><th></th><th>Synchrone (HTTP, gRPC)</th><th>Asynchrone (RabbitMQ)</th></tr>
+<tr><td>Quand</td><td>L'appelant a besoin de la réponse <b>tout de suite</b> pour continuer (requête de lecture)</td><td>On informe que quelque chose <b>s'est passé</b>, et les autres réagissent quand ils peuvent</td></tr>
+<tr><td>Couplage</td><td>Fort : si la cible tombe, l'appelant échoue</td><td>Faible : les messages attendent dans la file</td></tr>
+<tr><td>Dans TaskFlow</td><td>Gateway → services ; Tasks qui vérifie « ce projet existe-t-il ? » (avec cache)</td><td>Tout ce qui se déclenche en réaction à un événement</td></tr>
+</table></div>
+<h3>Commande ou événement ?</h3>
+<ul>
+  <li><b>Événement</b> (<code>ProjectCreated</code>, au passé) : un fait accompli, publié à <i>tous</i> les abonnés. L'émetteur ne sait pas qui écoute.</li>
+  <li><b>Commande</b> (<code>SendWelcomeEmail</code>, à l'impératif) : une demande envoyée à <i>un</i> destinataire précis.</li>
+</ul>
+<h3>Événement de domaine ou d'intégration ?</h3>
+<ul>
+  <li><b>Événement de domaine</b> (v1, <code>IDomainEvent</code>) : interne au service, en mémoire, riche en types du domaine.</li>
+  <li><b>Événement d'intégration</b> : public, sérialisé, <b>versionné</b>, et composé uniquement de types simples (Guid, string, dates). Il vit dans le projet <code>*.Contracts</code> du service émetteur. C'est un contrat : on ne supprime ni ne renomme jamais un champ, on en ajoute.</li>
+</ul>
+</section>
+
+<section id="rabbit">
+<h2>5. RabbitMQ : les notions à retenir</h2>
+<pre><code>Producteur ──► Exchange ──(binding + routing key)──► Queue ──► Consommateur
+                 │
+                 ├─ fanout : copie à toutes les queues liées (publish/subscribe)
+                 ├─ direct : routing key exacte
+                 └─ topic  : motif, ex. "projects.*.created"</code></pre>
+<ul>
+  <li><b>Une queue par service consommateur</b> (<code>tasks.project-created</code>), pas par événement partagé : chaque service reçoit sa propre copie.</li>
+  <li><b>Ack manuel</b> : le message n'est retiré de la file qu'après un traitement réussi. En cas de crash, il est redistribué.</li>
+  <li><b>Prefetch</b> : le nombre de messages envoyés d'avance à un consommateur. Il règle le compromis entre débit et équité.</li>
+  <li><b>Dead-letter exchange (DLX)</b> : là où partent les messages qui échouent après N tentatives. On les inspecte et on les rejoue.</li>
+  <li><b>Quorum queues</b> : durables et répliquées, à utiliser par défaut. Wolverine les déclare pour toi.</li>
+  <li>L'interface d'administration (plugin <i>management</i>) montre les files, les débits et les messages en attente : ton meilleur outil de débogage.</li>
+</ul>
+</section>
+
+<section id="fiabilite">
+<h2>6. Fiabilité : les patterns indispensables</h2>
+<h3>Transactional outbox</h3>
+<pre><code>BEGIN;
+  INSERT INTO projects.projects ...;          -- données métier
+  INSERT INTO wolverine.outgoing ...;         -- l'événement, même transaction
+COMMIT;
+-- un agent Wolverine lit la table outgoing et publie sur RabbitMQ, avec retries</code></pre>
+<p>Sans outbox, un crash entre le <code>COMMIT</code> et le <code>Publish</code> <b>perd l'événement</b>, et les autres services ne sauront jamais que le projet existe.</p>
+<h3>Idempotence (inbox)</h3>
+<p>RabbitMQ garantit une livraison <b>au moins une fois</b> : un message peut arriver deux fois. Chaque handler doit donc produire le même résultat s'il est rejoué. Deux façons d'y parvenir : l'<b>inbox durable</b> de Wolverine (qui mémorise les identifiants des messages déjà traités), ou une logique naturellement idempotente (« créer le board s'il n'existe pas »).</p>
+<h3>Retries et erreurs</h3>
+<ul>
+  <li><b>Erreur transitoire</b> (base momentanément indisponible) : on réessaie avec un délai croissant (1 s, 5 s, 30 s).</li>
+  <li><b>Erreur permanente</b> (données invalides) : on ne réessaie pas, le message part directement en dead-letter.</li>
+</ul>
+<h3>Saga (processus sur plusieurs services)</h3>
+<p>Exemple : archiver un projet revient à archiver ses tâches, puis à notifier ses membres, puis à marquer le projet « archivé ». Il n'y a pas de transaction distribuée : chaque étape est locale, et en cas d'échec, on déclenche des <b>actions de compensation</b>. Wolverine gère l'état de la saga en base.</p>
+<div class="box ok"><b>Résumé :</b> outbox côté émetteur, idempotence côté consommateur, dead-letter pour ce qui ne passe pas. C'est le trio attendu en entretien.</div>
+</section>
+
+<section id="donnees">
+<h2>7. Données : chaque service possède les siennes</h2>
+<ul>
+  <li><b>Une base par service</b> (<code>projectsdb</code>, <code>tasksdb</code>) sur le même serveur Postgres en local. Aucune requête SQL ne traverse deux bases.</li>
+  <li>Si Tasks a besoin du nom d'un projet, il en garde une <b>copie locale</b> (une projection), mise à jour par les événements <code>ProjectCreated</code> et <code>ProjectRenamed</code>. Il n'appelle pas Projects à chaque affichage.</li>
+  <li>Cette copie peut avoir quelques millisecondes de retard : c'est la <b>cohérence éventuelle</b>, et l'interface doit l'accepter.</li>
+</ul>
+</section>
+
+<section id="obs">
+<h2>8. Observabilité distribuée</h2>
+<ul>
+  <li>OpenTelemetry propage un <b>trace-id</b> dans les en-têtes HTTP <i>et</i> dans les messages RabbitMQ (Wolverine le fait nativement).</li>
+  <li>Dans le dashboard Aspire, une seule trace montre : Angular → Gateway → Projects → Postgres → RabbitMQ → Tasks → Postgres.</li>
+  <li>Métriques à suivre : longueur des files, messages en dead-letter, durée des handlers.</li>
+  <li>Health checks : chaque service expose <code>/health</code>, et RabbitMQ et Postgres y sont vérifiés.</li>
+</ul>
+</section>
+
+<section id="tests">
+<h2>9. Tester des microservices</h2>
+<div class="tbl"><table>
+<tr><th>Niveau</th><th>Outil</th><th>Ce qu'on vérifie</th></tr>
+<tr><td>Unitaire</td><td>xUnit v3 + Shouldly</td><td>Le domaine et les handlers, sans broker</td></tr>
+<tr><td>Intégration service</td><td>WebApplicationFactory + Testcontainers (Postgres, RabbitMQ)</td><td>Un endpoint écrit en base <b>et</b> publie l'événement attendu</td></tr>
+<tr><td>Messagerie</td><td>Wolverine tracking (<code>InvokeMessageAndWaitAsync</code>, <code>TrackActivity</code>)</td><td>Un message entrant produit les bons effets et les bons messages sortants</td></tr>
+<tr><td>Contrat</td><td>Tests de sérialisation (snapshot JSON)</td><td>Un événement publié garde la même forme : pas de changement cassant</td></tr>
+<tr><td>Architecture</td><td>NetArchTest</td><td>Aucun service ne référence le Domain ou l'Infrastructure d'un autre, seulement ses <code>Contracts</code></td></tr>
+<tr><td>E2E</td><td>Playwright via la Gateway</td><td>Un parcours complet</td></tr>
+</table></div>
+</section>
+
+<section id="code">
+<h2>10. Structure du code</h2>
+<pre><code>src/
+├─ AppHost/                      Aspire : Postgres, RabbitMQ, services, gateway, front
+├─ BuildingBlocks/
+│  ├─ TaskFlow.ServiceDefaults/  OpenTelemetry, health, résilience
+│  └─ TaskFlow.SharedKernel/     Entity, AggregateRoot, Result, Error
+├─ Gateway/TaskFlow.Gateway/     YARP
+└─ Services/
+   ├─ Projects/
+   │  ├─ TaskFlow.Projects.Api/             hôte HTTP + Wolverine
+   │  ├─ TaskFlow.Projects.Domain/
+   │  ├─ TaskFlow.Projects.Application/
+   │  ├─ TaskFlow.Projects.Infrastructure/
+   │  └─ TaskFlow.Projects.Contracts/       événements d'intégration publics
+   ├─ Tasks/          (même découpage)
+   └─ Notifications/  (worker)</code></pre>
+<div class="box key"><b>Règle :</b> un service ne peut référencer que le projet <code>*.Contracts</code> d'un autre service. Jamais son Domain, son Application ou son Infrastructure.</div>
+</section>
+
+<section id="roadmap">
+<h2>11. Roadmap microservices</h2>
+<div class="tbl"><table>
+<tr><th>Étape</th><th>Contenu</th><th>Critère de réussite</th></tr>
+<tr><td>1</td><td>Restructuration en services, RabbitMQ et Gateway YARP dans Aspire</td><td>Le front passe par la Gateway, et RabbitMQ est visible dans le dashboard</td></tr>
+<tr><td>2</td><td>Service Tasks + premier événement <code>ProjectCreated</code> via Wolverine</td><td>Créer un projet crée automatiquement son board dans Tasks</td></tr>
+<tr><td>3</td><td>Outbox et inbox durables + tests Testcontainers</td><td>On coupe RabbitMQ, on crée un projet, on relance RabbitMQ : l'événement arrive</td></tr>
+<tr><td>4</td><td>Service Notifications + SignalR</td><td>Un déplacement de tâche apparaît en direct chez les autres membres</td></tr>
+<tr><td>5</td><td>Saga d'archivage + dead-letter + documentation AsyncAPI</td><td>Un message invalide finit en DLQ, visible et rejouable</td></tr>
+<tr><td>6</td><td>Keycloak + auth à la Gateway, propagation de l'utilisateur</td><td>Les services reçoivent l'identité sans la revalider eux-mêmes</td></tr>
+<tr><td>7</td><td>CI par service + images conteneur + déploiement</td><td>Un changement dans Tasks ne rebuild que Tasks</td></tr>
+</table></div>
+</section>
+
+<section id="pieges">
+<h2>12. Pièges classiques (et questions d'entretien)</h2>
+<ul>
+  <li>Partager une base entre services, ou lire directement la table d'un autre service.</li>
+  <li>Publier un événement sans outbox, ce qui le perd au premier crash.</li>
+  <li>Des handlers non idempotents, qui créent des doublons à la redistribution.</li>
+  <li>Des chaînes d'appels HTTP synchrones : A appelle B qui appelle C, et la latence et les pannes s'additionnent.</li>
+  <li>Mettre des objets du domaine dans les événements d'intégration, ce qui couple les services.</li>
+  <li>Casser un contrat d'événement (renommer un champ) sans versionner.</li>
+  <li>Oublier le trace-id, et ne plus rien pouvoir déboguer.</li>
+  <li>Découper trop fin : un « microservice » par table. Il faut découper par capacité métier.</li>
+  <li><b>Question classique :</b> « Comment garantir qu'un événement est publié exactement une fois ? » Réponse : on ne peut pas. On combine l'outbox (au moins une fois) et l'idempotence (effet unique), ce qui donne un effet « exactly-once » côté métier.</li>
+</ul>
+</section>
+</div>
+</body>
+</html>

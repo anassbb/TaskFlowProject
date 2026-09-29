@@ -5,7 +5,7 @@
     {
       "label": "TaskFlow : lancer (Aspire)",
       "type": "shell",
-      "command": "dotnet run --project src/TaskFlow.AppHost",
+      "command": "dotnet run --project src/AppHost/TaskFlow.AppHost",
       "isBackground": true,
       "problemMatcher": []
     },

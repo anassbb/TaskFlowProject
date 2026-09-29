@@ -5,7 +5,7 @@ using Shouldly;
 namespace TaskFlow.ArchitectureTests;
 
 /// <summary>
-/// Vérifie la règle de dépendance de la Clean Architecture :
+/// Vérifie la règle de dépendance de la Clean Architecture à l'intérieur du service Projects :
 /// Domain ← Application ← Infrastructure ← Api. Un test rouge = une couche qui en référence une autre à tort.
 /// </summary>
 public class LayerDependencyTests
@@ -34,7 +34,7 @@ public class LayerDependencyTests
                 "Microsoft.AspNetCore",
                 "TaskFlow.Projects.Application",
                 "TaskFlow.Projects.Infrastructure",
-                "TaskFlow.Api")
+                "TaskFlow.Projects.Api")
             .GetResult();
 
         result.IsSuccessful.ShouldBeTrue(Describe(result));
@@ -47,7 +47,7 @@ public class LayerDependencyTests
             .ShouldNot().HaveDependencyOnAny(
                 "Microsoft.EntityFrameworkCore",
                 "TaskFlow.Projects.Infrastructure",
-                "TaskFlow.Api")
+                "TaskFlow.Projects.Api")
             .GetResult();
 
         result.IsSuccessful.ShouldBeTrue(Describe(result));
@@ -57,7 +57,7 @@ public class LayerDependencyTests
     public void Infrastructure_ne_depend_pas_de_l_Api()
     {
         var result = Types.InAssembly(ProjectsInfrastructure)
-            .ShouldNot().HaveDependencyOn("TaskFlow.Api")
+            .ShouldNot().HaveDependencyOn("TaskFlow.Projects.Api")
             .GetResult();
 
         result.IsSuccessful.ShouldBeTrue(Describe(result));
@@ -74,6 +74,6 @@ public class LayerDependencyTests
         result.IsSuccessful.ShouldBeTrue(Describe(result));
     }
 
-    private static string Describe(NetArchTest.Rules.TestResult result) =>
+    internal static string Describe(NetArchTest.Rules.TestResult result) =>
         "Types en infraction : " + string.Join(", ", result.FailingTypeNames ?? []);
 }

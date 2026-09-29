@@ -10,7 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\TaskFlow.Api\TaskFlow.Api.csproj" />
+    <ProjectReference Include="..\..\src\Gateway\TaskFlow.Gateway\TaskFlow.Gateway.csproj" />
+    <ProjectReference Include="..\..\src\Services\Projects\TaskFlow.Projects.Api\TaskFlow.Projects.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

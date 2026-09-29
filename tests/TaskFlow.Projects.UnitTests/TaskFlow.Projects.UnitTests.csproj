@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Modules\Projects\TaskFlow.Projects.Domain\TaskFlow.Projects.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Services\Projects\TaskFlow.Projects.Domain\TaskFlow.Projects.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

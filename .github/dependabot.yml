@@ -19,6 +19,11 @@ updates:
     groups:
       angular:
         patterns: ["@angular/*", "@angular-devkit/*", "angular-eslint"]
+    ignore:
+      # Chaque version d'Angular impose sa plage TypeScript : on monte TypeScript
+      # avec Angular (ng update), jamais seul en version majeure.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /

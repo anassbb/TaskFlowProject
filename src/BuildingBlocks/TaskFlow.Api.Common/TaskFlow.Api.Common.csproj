@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Briques HTTP communes à tous les microservices : erreurs ProblemDetails, Result -> HTTP, validation. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TaskFlow.SharedKernel\TaskFlow.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

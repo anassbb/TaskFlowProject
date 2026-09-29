@@ -11,13 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\TaskFlow.ServiceDefaults\TaskFlow.ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\TaskFlow.Api.Common\TaskFlow.Api.Common.csproj" />
-    <ProjectReference Include="..\TaskFlow.Projects.Infrastructure\TaskFlow.Projects.Infrastructure.csproj" />
-    <ProjectReference Include="..\TaskFlow.Projects.Contracts\TaskFlow.Projects.Contracts.csproj" />
-  </ItemGroup>
-
-  <!-- Permet aux tests d'intégration d'utiliser WebApplicationFactory<Program> -->
-  <ItemGroup>
-    <InternalsVisibleTo Include="TaskFlow.Projects.IntegrationTests" />
+    <ProjectReference Include="..\TaskFlow.Tasks.Infrastructure\TaskFlow.Tasks.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

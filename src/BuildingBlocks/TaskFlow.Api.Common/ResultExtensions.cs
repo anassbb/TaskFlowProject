@@ -1,6 +1,7 @@
+using Microsoft.AspNetCore.Http;
 using TaskFlow.SharedKernel;
 
-namespace TaskFlow.Projects.Api.Infrastructure;
+namespace TaskFlow.Api.Common;
 
 /// <summary>
 /// Traduit un <see cref="Result"/> en échec vers une réponse HTTP ProblemDetails.

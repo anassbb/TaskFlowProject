@@ -8,6 +8,7 @@ var postgres = builder.AddPostgres("postgres")
 
 // Une base par service : aucun service ne lit la base d'un autre.
 var projectsDb = postgres.AddDatabase("projectsdb");
+var tasksDb = postgres.AddDatabase("tasksdb");
 
 // Broker de messages. Le plugin "management" ajoute l'interface web (files, débits, messages en attente).
 var rabbitmq = builder.AddRabbitMQ("rabbitmq")
@@ -24,11 +25,21 @@ var projectsApi = builder.AddProject<Projects.TaskFlow_Projects_Api>("projects-a
     .WaitFor(rabbitmq)
     .WithHttpHealthCheck("/health");
 
+// Tasks écoute les événements de Projects via RabbitMQ : aucune référence directe entre les deux services.
+var tasksApi = builder.AddProject<Projects.TaskFlow_Tasks_Api>("tasks-api")
+    .WithReference(tasksDb)
+    .WithReference(rabbitmq)
+    .WaitFor(tasksDb)
+    .WaitFor(rabbitmq)
+    .WithHttpHealthCheck("/health");
+
 // ── Gateway : seul point d'entrée du front ──
 
 var gateway = builder.AddProject<Projects.TaskFlow_Gateway>("gateway")
     .WithReference(projectsApi)
+    .WithReference(tasksApi)
     .WaitFor(projectsApi)
+    .WaitFor(tasksApi)
     .WithHttpHealthCheck("/health");
 
 // ── Front Angular : ne connaît que la Gateway ──

@@ -1,12 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Vertical slices : chaque feature (Command/Query + Handler + Validator + Endpoint) vit ici. -->
+  <!-- Vertical slices : chaque feature (Command/Query + Handler + Validator + Endpoint) vit dans Features/. -->
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <!-- IMessageBus : publication des événements d'intégration sur RabbitMQ -->
+    <PackageReference Include="WolverineFx" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\TaskFlow.Api.Common\TaskFlow.Api.Common.csproj" />
+    <ProjectReference Include="..\TaskFlow.Projects.Contracts\TaskFlow.Projects.Contracts.csproj" />
     <ProjectReference Include="..\TaskFlow.Projects.Domain\TaskFlow.Projects.Domain.csproj" />
   </ItemGroup>
 

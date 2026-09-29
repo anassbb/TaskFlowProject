@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
+    <PackageReference Include="Aspire.RabbitMQ.Client" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
@@ -10,13 +11,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TaskFlow.ServiceDefaults\TaskFlow.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\Modules\Projects\TaskFlow.Projects.Infrastructure\TaskFlow.Projects.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\TaskFlow.ServiceDefaults\TaskFlow.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\TaskFlow.Projects.Infrastructure\TaskFlow.Projects.Infrastructure.csproj" />
+    <ProjectReference Include="..\TaskFlow.Projects.Contracts\TaskFlow.Projects.Contracts.csproj" />
   </ItemGroup>
 
   <!-- Permet aux tests d'intégration d'utiliser WebApplicationFactory<Program> -->
   <ItemGroup>
-    <InternalsVisibleTo Include="TaskFlow.Api.IntegrationTests" />
+    <InternalsVisibleTo Include="TaskFlow.Projects.IntegrationTests" />
   </ItemGroup>
 
 </Project>

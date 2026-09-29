@@ -1,16 +1,27 @@
 # TaskFlow
 
-Outil de gestion de projets (style Jira/Trello), projet de formation .NET 10 + Angular 22.
-Voir le mémo technique : [docs/TaskFlow_Memo_Technique_v1.html](docs/TaskFlow_Memo_Technique_v1.html).
+Outil de gestion de projets (style Jira/Trello) en **microservices**, projet de formation .NET 10 + Angular 22.
+
+- Mémo v1, les fondations : [docs/TaskFlow_Memo_Technique_v1.html](docs/TaskFlow_Memo_Technique_v1.html)
+- Mémo v2, les microservices et RabbitMQ : [docs/TaskFlow_Memo_Technique_v2.html](docs/TaskFlow_Memo_Technique_v2.html)
+
+## Architecture
+
+```
+Angular ──► Gateway (YARP) ──► Projects API ──► projectsdb (Postgres)
+                                    │
+                                    └────────► RabbitMQ 4 ◄── (Tasks, Notifications, Reports : à venir)
+```
 
 ## Stack
 
 | Couche | Technologies |
 |---|---|
 | Orchestration locale | Aspire 13 (AppHost, dashboard, OpenTelemetry) |
-| API | ASP.NET Core 10 Minimal APIs, ProblemDetails, OpenAPI + Scalar |
-| Architecture | Modular monolith, Clean Architecture + Vertical Slices |
-| Données | PostgreSQL 18 (conteneur Podman), EF Core 10 |
+| Gateway | YARP 2 + service discovery Aspire |
+| Services | ASP.NET Core 10 Minimal APIs, Clean Architecture + Vertical Slices |
+| Messagerie | RabbitMQ 4, Wolverine 6 (outbox, sagas) |
+| Données | PostgreSQL 18, une base par service, EF Core 10 |
 | Front | Angular 22 zoneless, signals, `httpResource`, Vitest, ESLint |
 | Tests | xUnit v3, Shouldly, NetArchTest |
 | CI | GitHub Actions, Dependabot |
@@ -19,17 +30,24 @@ Voir le mémo technique : [docs/TaskFlow_Memo_Technique_v1.html](docs/TaskFlow_M
 
 ```
 src/
-  TaskFlow.AppHost/         Orchestration Aspire (Postgres + API + front)
-  TaskFlow.ServiceDefaults/ OpenTelemetry, health checks, résilience
-  TaskFlow.Api/             Hôte HTTP : Program.cs, gestion d'erreurs
-  TaskFlow.SharedKernel/    Entity, AggregateRoot, Result, Error, DomainEvent
-  Modules/Projects/         Module Projects : Domain / Application / Infrastructure
-web/taskflow-ui/            Application Angular (core / features / shared)
-tests/                      Tests d'architecture et unitaires
+  AppHost/TaskFlow.AppHost/         Orchestration Aspire (Postgres, RabbitMQ, services, gateway, front)
+  BuildingBlocks/
+    TaskFlow.ServiceDefaults/       OpenTelemetry, health checks, résilience
+    TaskFlow.SharedKernel/          Entity, AggregateRoot, Result, Error, DomainEvent
+  Gateway/TaskFlow.Gateway/         YARP : /api/projects/* -> projects-api
+  Services/Projects/
+    TaskFlow.Projects.Api/          Hôte HTTP du service
+    TaskFlow.Projects.Domain/
+    TaskFlow.Projects.Application/
+    TaskFlow.Projects.Infrastructure/
+    TaskFlow.Projects.Contracts/    Événements d'intégration publics
+web/taskflow-ui/                    Application Angular (core / features / shared)
+tests/                              Tests d'architecture et unitaires
 ```
 
-Règle de dépendance, vérifiée par `tests/TaskFlow.ArchitectureTests` :
-`Domain ← Application ← Infrastructure ← Api`.
+Règles vérifiées par `tests/TaskFlow.ArchitectureTests` :
+- dans un service : `Domain ← Application ← Infrastructure ← Api` ;
+- entre services : on ne référence que le projet `*.Contracts` d'un autre service, et la Gateway n'en référence aucun.
 
 ## Prérequis
 
@@ -41,11 +59,11 @@ Règle de dépendance, vérifiée par `tests/TaskFlow.ArchitectureTests` :
 ## Lancer l'application
 
 ```bash
-dotnet run --project src/TaskFlow.AppHost
+dotnet run --project src/AppHost/TaskFlow.AppHost
 ```
 
-Le lien du dashboard Aspire s'affiche dans la console. Il donne accès à Postgres, à l'API (`/scalar` pour tester les endpoints)
-et au front Angular.
+Ou **F5** dans VS Code. Le lien du dashboard Aspire s'affiche dans la console. Il donne accès à tous les services,
+à l'interface d'administration de RabbitMQ et au front Angular.
 
 ## Tests
 
@@ -67,6 +85,6 @@ npm test -- --watch=false
 
 ## Particularités du poste de travail
 
-- **Podman** remplace Docker : `ASPIRE_CONTAINER_RUNTIME=podman` est défini dans `src/TaskFlow.AppHost/Properties/launchSettings.json`.
+- **Podman** remplace Docker : `ASPIRE_CONTAINER_RUNTIME=podman` est défini dans `src/AppHost/TaskFlow.AppHost/Properties/launchSettings.json`.
 - **Pas de `.exe` pour les projets applicatifs** (`UseAppHost=false`, voir `Directory.Build.targets`) : ils sont lancés via `dotnet X.dll`.
 - **Proxy d'entreprise** : le registre npm doit être en `https://registry.npmjs.org/`.

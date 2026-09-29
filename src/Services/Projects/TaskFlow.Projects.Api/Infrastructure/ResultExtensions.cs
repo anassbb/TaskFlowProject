@@ -1,6 +1,6 @@
 using TaskFlow.SharedKernel;
 
-namespace TaskFlow.Api.Infrastructure;
+namespace TaskFlow.Projects.Api.Infrastructure;
 
 /// <summary>
 /// Traduit un <see cref="Result"/> en échec vers une réponse HTTP ProblemDetails.

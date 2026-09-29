@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace TaskFlow.Api.Infrastructure;
+namespace TaskFlow.Projects.Api.Infrastructure;
 
 /// <summary>
 /// Filet de sécurité pour les exceptions non prévues : log complet côté serveur,

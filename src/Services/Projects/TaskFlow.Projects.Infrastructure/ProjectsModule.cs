@@ -8,8 +8,8 @@ namespace TaskFlow.Projects.Infrastructure;
 /// <summary>Composition du module : l'API n'appelle que ces deux méthodes.</summary>
 public static class ProjectsModule
 {
-    /// <summary>Nom de la base déclarée dans l'AppHost Aspire (<c>AddDatabase("taskflowdb")</c>).</summary>
-    public const string DatabaseName = "taskflowdb";
+    /// <summary>Base propre au service Projects, déclarée dans l'AppHost (<c>AddDatabase("projectsdb")</c>).</summary>
+    public const string DatabaseName = "projectsdb";
 
     public static IHostApplicationBuilder AddProjectsModule(this IHostApplicationBuilder builder)
     {

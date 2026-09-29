@@ -8,11 +8,13 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" />
     <PackageReference Include="Aspire.Hosting.JavaScript" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TaskFlow.Api\TaskFlow.Api.csproj" />
+    <ProjectReference Include="..\..\Gateway\TaskFlow.Gateway\TaskFlow.Gateway.csproj" />
+    <ProjectReference Include="..\..\Services\Projects\TaskFlow.Projects.Api\TaskFlow.Projects.Api.csproj" />
   </ItemGroup>
 
 </Project>

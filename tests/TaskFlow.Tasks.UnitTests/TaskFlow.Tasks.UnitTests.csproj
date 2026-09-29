@@ -3,16 +3,13 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="NetArchTest.Rules" />
     <PackageReference Include="Shouldly" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Gateway\TaskFlow.Gateway\TaskFlow.Gateway.csproj" />
-    <ProjectReference Include="..\..\src\Services\Projects\TaskFlow.Projects.Api\TaskFlow.Projects.Api.csproj" />
-    <ProjectReference Include="..\..\src\Services\Tasks\TaskFlow.Tasks.Api\TaskFlow.Tasks.Api.csproj" />
+    <ProjectReference Include="..\..\src\Services\Tasks\TaskFlow.Tasks.Application\TaskFlow.Tasks.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

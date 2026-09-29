@@ -3,7 +3,6 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
-    <!-- Outillage "dotnet ef migrations" (pas embarqué à l'exécution) -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -11,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TaskFlow.Projects.Application\TaskFlow.Projects.Application.csproj" />
+    <ProjectReference Include="..\TaskFlow.Tasks.Application\TaskFlow.Tasks.Application.csproj" />
   </ItemGroup>
 
 </Project>

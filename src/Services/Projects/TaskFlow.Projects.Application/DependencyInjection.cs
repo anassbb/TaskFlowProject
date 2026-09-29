@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using TaskFlow.Projects.Application.Features;
 
 namespace TaskFlow.Projects.Application;
 
@@ -10,8 +11,9 @@ public static class DependencyInjection
         // Enregistre automatiquement tous les AbstractValidator<T> du module.
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, includeInternalTypes: true);
 
-        // TODO (toi) : enregistrer ici les handlers de tes features, ex.
-        // services.AddScoped<CreateProject.Handler>();
+        // Un handler par feature qui modifie l'état.
+        services.AddScoped<CreateProject.Handler>();
+
         return services;
     }
 }

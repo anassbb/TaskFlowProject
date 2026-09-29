@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Gateway\TaskFlow.Gateway\TaskFlow.Gateway.csproj" />
     <ProjectReference Include="..\..\Services\Projects\TaskFlow.Projects.Api\TaskFlow.Projects.Api.csproj" />
+    <ProjectReference Include="..\..\Services\Tasks\TaskFlow.Tasks.Api\TaskFlow.Tasks.Api.csproj" />
   </ItemGroup>
 
 </Project>

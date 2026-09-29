@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\TaskFlow.Api.Common\TaskFlow.Api.Common.csproj" />
+    <ProjectReference Include="..\TaskFlow.Tasks.Domain\TaskFlow.Tasks.Domain.csproj" />
+    <!-- SEUL projet du service Projects autorisé ici : son contrat public (les événements). -->
+    <ProjectReference Include="..\..\Projects\TaskFlow.Projects.Contracts\TaskFlow.Projects.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -16,7 +16,7 @@
   <ItemGroup Label="Microservices">
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="10.10.0" />
-    <PackageVersion Include="WolverineFx" Version="6.41.0" />
+    <PackageVersion Include="WolverineFx" Version="6.50.2" />
     <PackageVersion Include="WolverineFx.RabbitMQ" Version="6.41.0" />
     <!-- Compilateur Roslyn utilisé par Wolverine pour générer le code des handlers au démarrage (mode Dynamic) -->
     <PackageVersion Include="WolverineFx.RuntimeCompilation" Version="6.41.0" />
